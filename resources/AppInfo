@@ -1,0 +1,5 @@
+APP_TITLE = handy3ds
+APP_DESCRIPTION = handy3ds lynx emulator
+APP_AUTHOR = hippy dave/SDLEmu/K Wilkins
+APP_PRODUCT_CODE = CTR-P-HNDY
+APP_UNIQUE_ID = 0x998e

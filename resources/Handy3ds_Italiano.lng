@@ -1,0 +1,72 @@
+[Language]
+Italiano
+
+[wait]
+Attendere ...
+
+[wait]
+In pausa
+
+[Back_to_Game]
+Premi B per tornare al gioco
+
+[Back_to_Main]
+Premi B per il menu principale
+
+[Load_Rom]
+Carica Rom
+.
+[Load_State]
+Carica Stato
+
+[Save_State]
+Salva Stato
+
+[Reset_rom]
+Riavvia rom
+
+[Config]
+Configura
+
+[Exit]
+Esci
+
+[1x]
+1x
+
+[2x]
+2x
+
+[Fit]
+Adatta
+
+[Stretch]
+Estendi
+
+[Yes]
+Sì
+
+[No]
+No
+
+[Screen_Size]
+Dimensione schermo
+
+[Show_fps]
+Mosra Fps
+
+[Limit_fps]
+Limita fps
+
+[Frameskip]
+Frameskip
+
+[Swap:A/B]
+Iverti A/B
+
+[Show_Background]
+Mostra sfondo
+
+[Save config]
+Salva configurazione
+
