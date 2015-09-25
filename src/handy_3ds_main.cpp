@@ -278,6 +278,10 @@ void handy_3ds_quit(void)
 	handy_3ds_video_quit();
 	handy_3ds_audio_quit();
 
+    hidExit();
+    aptExit();
+    srvExit();
+
     exit(EXIT_SUCCESS);
 
 }
@@ -356,7 +360,9 @@ int main()
 	float audioStart; // this is a float to count the half sample per frame needed ho have precise timing
 	u32 audioTarget, audioEnd;
 
-//	aptInit();
+   srvInit();
+    aptInit();
+    hidInit(NULL);
 
 	APT_CheckNew3DS(NULL, &isN3DS);
 

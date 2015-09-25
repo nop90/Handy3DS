@@ -753,53 +753,53 @@ void gui_DrawTopScreen() {
 	sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		
 	if(background && Handy_cfg_ShowBackground && ((Handy_cfg_scalemode <3) || (Handy_rotation&1)) )
-		sf2d_draw_texture_rotate_cut_scale(background, 0, 0, 0, 0, 0, background->width, background->height, bgstretchx, bgstretchy);
+		sf2d_draw_texture_part_rotate_scale(background, 200, 120, 0, 0, 0, background->width, background->height, bgstretchx, bgstretchy);
 
     switch (Handy_rotation) {
 		case 0:
 			switch (Handy_cfg_scalemode) {
 				case 0:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 120, 69, 0, 0, 0, 160, 102, 1, 1); //1x
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 0, 0, 0, 160, 102, 1, 1); //1x
 					break;
 				case 1:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 40, 18, 0, 0, 0, 160, 102, 2, 2); //2x
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 0, 0, 0, 160, 102, 2, 2); //2x
 					break;
 				case 2:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 12, 0, 0, 0, 0, 160, 102, stretchy, stretchy);    //fit
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 0, 0, 0, 160, 102, stretchy, stretchy);    //fit
 					break;
 				case 3:
 				default:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 0, 0, 0, 0, 0, 160, 102, stretchx, stretchy);  //stretch
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 0, 0, 0, 160, 102, stretchx, stretchy);  //stretch
 					break;
 			}
 			break;
 		case 1:
 			switch (Handy_cfg_scalemode) {
 				case 0:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 120, 69, 1.57, 0, 0, 160, 102, 1, 1); //1x
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 1.57, 0, 0, 160, 102, 1, 1); //1x
 					break;
 				case 1:
 				case 2:
 				case 3:
 				default:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 80,44, 1.57, 0, 0, 160, 102, stretchr, stretchr);    //fit
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 1.57, 0, 0, 160, 102, stretchr, stretchr);    //fit
 					break;
 			}
 			break;
 		case 2:
 			switch (Handy_cfg_scalemode) {
 				case 0:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 120, 69, 3.14, 0, 0, 160, 102, 1, 1); //1x
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 3.14, 0, 0, 160, 102, 1, 1); //1x
 					break;
 				case 1:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 40, 18, 3.14, 0, 0, 160, 102, 2, 2); //2x
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 3.14, 0, 0, 160, 102, 2, 2); //2x
 					break;
 				case 2:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 12, 1, 3.14, 0, 0, 160, 102, stretchy, stretchy);    //fit
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 3.14, 0, 0, 160, 102, stretchy, stretchy);    //fit
 					break;
 				case 3:
 				default:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 0, 0, 3.14, 0, 0, 160, 102, stretchx, stretchy);  //stretch
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 3.14, 0, 0, 160, 102, stretchx, stretchy);  //stretch
 					break;
 			}
 			break;
@@ -807,13 +807,13 @@ void gui_DrawTopScreen() {
 		default:
 			switch (Handy_cfg_scalemode) {
 				case 0:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 120, 69, 4.71, 0, 0, 160, 102, 1, 1); //1x
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 4.71, 0, 0, 160, 102, 1, 1); //1x
 					break;
 				case 1:
 				case 2:
 				case 3:
 				default:
-					sf2d_draw_texture_rotate_cut_scale(temptext, 80, 44, 4.71, 0, 0, 160, 102, stretchr, stretchr);    //fit
+					sf2d_draw_texture_part_rotate_scale(temptext, 200, 120, 4.71, 0, 0, 160, 102, stretchr, stretchr);    //fit
 					break;
 			}
 			break;
