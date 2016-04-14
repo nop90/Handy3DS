@@ -514,7 +514,7 @@ class CMikie : public CLynxBase
 							if(mUART_Rx_waiting>0)
 							{
 								mUART_RX_DATA=mUART_Rx_input_queue[mUART_Rx_output_ptr];
-								mUART_Rx_output_ptr=(++mUART_Rx_output_ptr)%UART_MAX_RX_QUEUE;
+								mUART_Rx_output_ptr=(mUART_Rx_output_ptr+1)%UART_MAX_RX_QUEUE;
 								mUART_Rx_waiting--;
 								TRACE_MIKIE2("Update() - RX Byte output ptr=%02d waiting=%02d",mUART_Rx_output_ptr,mUART_Rx_waiting);
 							}
@@ -1076,7 +1076,7 @@ class CMikie : public CLynxBase
 			if(gAudioEnabled)
 			{
 //				static SLONG sample=0;
-				ULONG mix=0;
+				// ULONG mix=0; // unused
 				
 				//
 				// Catch audio buffer up to current time
@@ -1733,7 +1733,7 @@ class CMikie : public CLynxBase
 
 		int			mUART_Rx_input_queue[UART_MAX_RX_QUEUE];
 		unsigned int mUART_Rx_input_ptr;
-		unsigned int mUART_Rx_output_ptr;
+		unsigned int mUART_Rx_output_ptr =0;
 		int			mUART_Rx_waiting;
 		int			mUART_Rx_framing_error;
 		int			mUART_Rx_overun_error;

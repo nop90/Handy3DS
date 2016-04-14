@@ -71,7 +71,7 @@ int soundstate=0;
 */
 void handy_3ds_audio_callback(int start, int len)
 {
-int buffertail;
+//int buffertail;
 
 //    if( ( (int)gAudioBufferPointer >= (len)) && (gAudioBufferPointer != 0) && (!gSystemHalt) ) {
 //        memcpy(stream, gAudioBuffer, len);
@@ -98,10 +98,10 @@ int buffertail;
 		}
     }
 */
-		GSPGPU_FlushDataCache(NULL, gAudioBuffer0, HANDY_AUDIO_BUFFER_SIZE);
-		GSPGPU_FlushDataCache(NULL, gAudioBuffer1, HANDY_AUDIO_BUFFER_SIZE);
-		GSPGPU_FlushDataCache(NULL, gAudioBuffer2, HANDY_AUDIO_BUFFER_SIZE);
-		GSPGPU_FlushDataCache(NULL, gAudioBuffer3, HANDY_AUDIO_BUFFER_SIZE);
+		GSPGPU_FlushDataCache(gAudioBuffer0, HANDY_AUDIO_BUFFER_SIZE);
+		GSPGPU_FlushDataCache(gAudioBuffer1, HANDY_AUDIO_BUFFER_SIZE);
+		GSPGPU_FlushDataCache(gAudioBuffer2, HANDY_AUDIO_BUFFER_SIZE);
+		GSPGPU_FlushDataCache(gAudioBuffer3, HANDY_AUDIO_BUFFER_SIZE);
 }
 
 void handy_3ds_audio_start(int freq, int start)
@@ -128,10 +128,10 @@ Uint8 *buff[HANDY_AUDIO_BUFFER_SIZE];
         memcpy(gAudioBuffer3+HANDY_AUDIO_BUFFER_SIZE - start, buff, start);
 	}
 	
-		GSPGPU_FlushDataCache(NULL, gAudioBuffer0, HANDY_AUDIO_BUFFER_SIZE);
-		GSPGPU_FlushDataCache(NULL, gAudioBuffer1, HANDY_AUDIO_BUFFER_SIZE);
-		GSPGPU_FlushDataCache(NULL, gAudioBuffer2, HANDY_AUDIO_BUFFER_SIZE);
-		GSPGPU_FlushDataCache(NULL, gAudioBuffer3, HANDY_AUDIO_BUFFER_SIZE);
+		GSPGPU_FlushDataCache(gAudioBuffer0, HANDY_AUDIO_BUFFER_SIZE);
+		GSPGPU_FlushDataCache(gAudioBuffer1, HANDY_AUDIO_BUFFER_SIZE);
+		GSPGPU_FlushDataCache(gAudioBuffer2, HANDY_AUDIO_BUFFER_SIZE);
+		GSPGPU_FlushDataCache(gAudioBuffer3, HANDY_AUDIO_BUFFER_SIZE);
 
 		csndPlaySound(0x8, SOUND_REPEAT | SOUND_FORMAT_8BIT, freq, 1.0, 0.0, (u32*)gAudioBuffer0, (u32*)gAudioBuffer0, HANDY_AUDIO_BUFFER_SIZE);
 		csndPlaySound(0x9, SOUND_REPEAT | SOUND_FORMAT_8BIT, freq, 1.0, 0.0, (u32*)gAudioBuffer1, (u32*)gAudioBuffer1, HANDY_AUDIO_BUFFER_SIZE);

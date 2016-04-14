@@ -37,6 +37,50 @@
 #ifndef _HANDY_3DS_CONFIG_H_
 #define _HANDY_3DS_CONFIG_H_
 
+#define HANDY_3DS_LANGUAGE_STRING_MAX_SIZE 100
+
+enum handy_3ds_string_hashes 
+    { 
+        HANDY_STR_Language_ID, 
+        HANDY_STR_Wait,
+        HANDY_STR_Pause,
+        HANDY_STR_Exit_menu,
+        HANDY_STR_Show_Menu,
+        HANDY_STR_Back_to_Game,
+        HANDY_STR_Back_to_Main,
+        HANDY_STR_Back_to_Previous,
+        HANDY_STR_Load_Rom,
+        HANDY_STR_Load_State,
+        HANDY_STR_Save_State,
+        HANDY_STR_Reset_rom,
+        HANDY_STR_Config,
+        HANDY_STR_Exit,
+        HANDY_STR_Screen_Config,
+        HANDY_STR_Language,
+        HANDY_STR_Sound,
+        HANDY_STR_Limit_FPS,
+        HANDY_STR_Swap_AB,
+        HANDY_STR_Save_Config,
+        HANDY_STR_Screen_Size,
+        HANDY_STR_Bottom_Screen,
+        HANDY_STR_Show_FPS,
+        HANDY_STR_Show_Background,
+        HANDY_STR_Background_Color,
+        HANDY_STR_1x,
+        HANDY_STR_2x,
+        HANDY_STR_Fit,
+        HANDY_STR_Stretch,
+        HANDY_STR_Yes,
+        HANDY_STR_No,
+		HANDY_STR_Black,
+		HANDY_STR_Blue,
+		HANDY_STR_Green,
+		HANDY_STR_Red
+	};    
+
+
+
+void set_language(void);
 
 void do_config(char *file);
 void parse_args(int argc, char **argv);

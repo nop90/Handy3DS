@@ -1,22 +1,22 @@
 BasicInfo:
-  Title                   : "handy3ds"
+  Title                   : "Lua Player Plus"
   CompanyCode             : "00"
-  ProductCode             : "CTR-P-HNDY"
+  ProductCode             : "CTR-P-LPPD"
   ContentType             : Application
   Logo                    : Nintendo # Nintendo / Licensed / Distributed / iQue / iQueForSystem
 
 TitleInfo:
-  UniqueId                : 0x998e
+  UniqueId                : 0x1337
   Category                : Application
   
 CardInfo:
   MediaSize               : 128MB # 128MB / 256MB / 512MB / 1GB / 2GB / 4GB
   MediaType               : Card1 # Card1 / Card2
-  CardDevice              : None # NorFlash(Pick this if you use savedata) / None
+  CardDevice              : NorFlash # NorFlash(Pick this if you use savedata) / None
   
 
 Option:
-  UseOnSD                 : true # true if App is to be installed to SD
+  UseOnSD                : true # true if App is to be installed to SD
   FreeProductCode         : true # Removes limitations on ProductCode
   MediaFootPadding        : false # If true CCI files are created with padding
   EnableCrypt             : false # Enables encryption for NCCH and CIA

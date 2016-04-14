@@ -45,7 +45,7 @@
 
 
 
-#define		HANDY_3DS_VERSION	"v0.3"
+#define		HANDY_3DS_VERSION	"v1.1"
 #define     HANDY_VERSION           	"Handy 0.95"
 #define     HANDY_BASE_FPS              60
 

@@ -241,7 +241,7 @@ CSystem::CSystem(char* gamefile,char* romfile)
 
 		if(fread(filememory,sizeof(char),filesize,fp)!=filesize)
 		{
-			CLynxException lynxerr;
+//			CLynxException lynxerr;
 			delete filememory;
 /*
 			lynxerr.Message() << "Handy Error: Unspecified Load error (Header)";

@@ -74,9 +74,9 @@ char config_bios_path[MAX__PATH];
 char config_skin_path[MAX__PATH];
 char config_save_path[MAX__PATH];
 
-FS_archive sdmcArchive;
+FS_Archive sdmcArchive;
 Handle dirHandle;
-FS_dirent entry;
+FS_DirectoryEntry entry;
 
 bool mydebug = false;
 
@@ -107,13 +107,13 @@ extern int		Handy_cfg_Sound;
 void get_config_path()
 {
 	if(strlen(config_base_path) == 0) {
-        sdmcArchive = (FS_archive){ARCH_SDMC, (FS_path){PATH_EMPTY, 1, (u8*)""}};
-        FSUSER_OpenArchive(NULL, &sdmcArchive);
+        sdmcArchive = (FS_Archive){ARCHIVE_SDMC, (FS_Path){PATH_EMPTY, 1, (u8*)""}};
+        FSUSER_OpenArchive(&sdmcArchive);
         
         sprintf(config_base_path, "/lynx");
 
-        FS_path dirPath = (FS_path){PATH_CHAR, strlen(config_base_path)+1, (u8*)config_base_path};
-        FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, dirPath);
+        FS_Path dirPath = (FS_Path){PATH_ASCII, strlen(config_base_path)+1, (u8*)config_base_path};
+        FSUSER_OpenDirectory(&dirHandle, sdmcArchive, dirPath);
         
         if(!dirHandle) sprintf(config_base_path, "/"); //!!
         FSDIR_Close(dirHandle);
@@ -138,7 +138,7 @@ void get_config_path()
                             Handy WIN32 with minor tweaks. It is used for
                             basic throttle of the Handy core.
 */
-inline    int handy_3ds_update(void)
+inline int handy_3ds_update(void)
 {
         // Throttling code
         //
@@ -330,7 +330,7 @@ void handy_3ds_core_reinit(char *romname)
 }
 
 void system_checkPolls() {
-    APP_STATUS status;
+    APT_AppStatus status;
 
 	while((status=aptGetStatus()) != APP_RUNNING) {
 
@@ -360,11 +360,14 @@ int main()
 	float audioStart; // this is a float to count the half sample per frame needed ho have precise timing
 	u32 audioTarget, audioEnd;
 
-   srvInit();
+    srvInit();
     aptInit();
-    hidInit(NULL);
+    hidInit();
 
-	APT_CheckNew3DS(NULL, &isN3DS);
+	APT_CheckNew3DS(&isN3DS);
+	
+	if(isN3DS) 
+		osSetSpeedupEnable(true);
 
 	get_config_path();
 
@@ -417,7 +420,7 @@ int main()
 		frameSyncPeriod = 12;
 
 	fpstickres= TICKS_PER_SEC; 
-	synctickres = TICKS_PER_FRAME * frameSyncPeriod; // on o3ds the sync is every 6 frame, i.e. 10 times every sec
+	synctickres = TICKS_PER_FRAME * frameSyncPeriod; // on o3ds the sync is every 12 frame, i.e. 5 times every sec
 	tickcurr=svcGetSystemTick();
 	fpsticknext = tickcurr + fpstickres;
 	syncticknext = tickcurr + synctickres;
@@ -473,9 +476,10 @@ int main()
             hidScanInput();
             u32 held = hidKeysHeld();
             if (held & KEY_SELECT) {
-				handy_3ds_video_quit();
-				handy_3ds_audio_quit();
-                exit(EXIT_SUCCESS);   //break;
+//				handy_3ds_video_quit();
+//				handy_3ds_audio_quit();
+//              exit(EXIT_SUCCESS);   //break;
+				touched = true; // enter menu
             }
             //!!
  
@@ -537,5 +541,6 @@ int main()
 
     }   // while(!emulation)
 
+	osSetSpeedupEnable(true);
 	return 0;
 }

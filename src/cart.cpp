@@ -137,36 +137,37 @@ CCart::CCart(UBYTE *gamedata,ULONG gamesize)
 
 	// Set the filetypes
 
-	CTYPE banktype0,banktype1;
+//	CTYPE banktype0;  // unused
+	CTYPE banktype1;
 
 	switch(header.page_size_bank0)
 	{
 		case 0x000:
-			banktype0=UNUSED;
+		//	banktype0=UNUSED;
 			mMaskBank0=0;
 			mShiftCount0=0;
 			mCountMask0=0;
 			break;
 		case 0x100:
-			banktype0=C64K;
+		//	banktype0=C64K;
 			mMaskBank0=0x00ffff;
 			mShiftCount0=8;
 			mCountMask0=0x0ff;
 			break;
 		case 0x200:
-			banktype0=C128K;
+		//	banktype0=C128K;
 			mMaskBank0=0x01ffff;
 			mShiftCount0=9;
 			mCountMask0=0x1ff;
 			break;
 		case 0x400:
-			banktype0=C256K;
+		//	banktype0=C256K;
 			mMaskBank0=0x03ffff;
 			mShiftCount0=10;
 			mCountMask0=0x3ff;
 			break;
 		case 0x800:
-			banktype0=C512K;
+		//	banktype0=C512K;
 			mMaskBank0=0x07ffff;
 			mShiftCount0=11;
 			mCountMask0=0x7ff;
@@ -181,7 +182,7 @@ CCart::CCart(UBYTE *gamedata,ULONG gamesize)
 			throw(lynxerr);
 			*/
 
-			banktype0=UNUSED;
+		//	banktype0=UNUSED;
 			mMaskBank0=0;
 			mShiftCount0=0;
 			mCountMask0=0;
@@ -231,10 +232,10 @@ CCart::CCart(UBYTE *gamedata,ULONG gamesize)
 			throw(lynxerr);
 			*/
 
-			banktype0=UNUSED;
-			mMaskBank0=0;
-			mShiftCount0=0;
-			mCountMask0=0;
+			banktype1=UNUSED;
+			mMaskBank1=0;
+			mShiftCount1=0;
+			mCountMask1=0;
 			break;
 	}
 	TRACE_CART1("CCart() - Bank1 = $%06x",mMaskBank1);

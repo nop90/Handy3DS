@@ -67,6 +67,7 @@
 #include <sfil.h>
 #include <sftd.h>
 #include "handy_3ds_gui.h"
+//#include "handy_3ds_lang.h"
 #include "handy_3ds_config.h"
 #include "handy_3ds_main.h"
 #include "handy_3ds_graphics.h"
@@ -74,18 +75,20 @@
 /* defines and macros */
 #define MAX__PATH 1024
 #define FILE_LIST_ROWS 20   //24
-#define FILE_LIST_POSITION 2    //8
-#define DIR_LIST_POSITION 104   //208
+#define FILE_LIST_POSITION 8
+#define DIR_LIST_POSITION 208
 
 #define color16(red, green, blue) ((red << 11) | (green << 5) | blue)
 
-#define COLOR_BG            	0x140c08ff  
-#define COLOR_ROM_INFO      	0x589068ff  
-#define COLOR_ACTIVE_ITEM   	0xffff00ff  
-#define COLOR_INACTIVE_ITEM 	0xaaaaaaff  
-#define COLOR_INACTIVE_ITEM_BG 	0x444444ff  
-#define COLOR_FRAMESKIP_BAR 	0x3c7c7cff  
-#define COLOR_HELP_TEXT     	0x00ffffff  
+#define COLOR_BG            	RGBA8(0x14, 0x0c, 0x08, 0xff) 
+#define COLOR_ROM_INFO      	RGBA8(0x58, 0x90, 0x68, 0xff) 
+#define COLOR_ACTIVE_ITEM   	RGBA8(0xff, 0xff, 0x00, 0xff) 
+#define COLOR_INACTIVE_ITEM 	RGBA8(0xaa, 0xaa, 0xaa, 0xff)   
+#define COLOR_INACTIVE_ITEM_BG 	RGBA8(0x44, 0x44, 0x44, 0xff)   
+#define COLOR_FRAMESKIP_BAR 	RGBA8(0x3c, 0x7c, 0x7c, 0xff)  
+#define COLOR_HELP_TEXT     	RGBA8(0x00, 0xff, 0xff, 0xff)  
+
+extern char Handy_3DS_String_list [27][HANDY_3DS_LANGUAGE_STRING_MAX_SIZE]; 
 
 void strncpy_u2a(char* dst, u16* src, int n);
 
@@ -98,8 +101,8 @@ void gui_SaveConfig();
 void gui_Reset();
 void gui_DrawTopScreen();
 
+int guitextwidth;
 int gui_LoadSlot = 0;
-
 int loadslot = -1; // flag to reload preview screen
 bool done = FALSE;  //int done = 0; // flag to indicate exit status
 
@@ -107,12 +110,13 @@ bool done = FALSE;  //int done = 0; // flag to indicate exit status
 /* external references */
 extern char rom_name_with_no_ext[128]; // name of current rom, used for load/save state
 
-extern FS_archive sdmcArchive;
+extern FS_Archive sdmcArchive;
 extern Handle dirHandle;
-extern FS_dirent entry;
+extern FS_DirectoryEntry entry;
 
 extern int emulation;
 extern sftd_font *font;
+extern sftd_font *font2;
 extern sf2d_texture *prevscreen, *previewtex, *currentscreen, *emptyslot, *background, *insertgame;
 
 extern int Handy_cfg_scalemode;
@@ -123,6 +127,7 @@ extern int Handy_cfg_ShowBackground;
 extern int Handy_cfg_Sound;
 extern int Handy_cfg_BottomScr;
 extern int Handy_cfg_BGColor;
+extern int Handy_cfg_Language;
 
 extern int Handy_rotation;
 
@@ -148,29 +153,34 @@ typedef struct {
 	MENUITEM *m; // array of items
 } MENU;
 
-char *gui_ScaleNames[] = {"1x","2x", "Fit", "Stretch"}; 
-char *gui_YesNo[] = {"No", "Yes"};
-char *gui_ColorNames[] = {"Black","Blue", "Green", "Red"}; 
+//char const *gui_ScaleNames[] = {"1x","2x", "Fit", "Stretch"}; 
+//char const *gui_YesNo[] = {"No", "Yes"};
+//char const *gui_ColorNames[] = {"Black","Blue", "Green", "Red"}; 
+char *gui_ScaleNames[] = {Handy_3DS_String_list [HANDY_STR_1x],Handy_3DS_String_list [HANDY_STR_2x], Handy_3DS_String_list [HANDY_STR_Fit], Handy_3DS_String_list [HANDY_STR_Stretch]}; 
+char *gui_YesNo[] = {Handy_3DS_String_list [HANDY_STR_No], Handy_3DS_String_list [HANDY_STR_Yes]};
+char *gui_ColorNames[] = {Handy_3DS_String_list [HANDY_STR_Black],Handy_3DS_String_list [HANDY_STR_Blue], Handy_3DS_String_list [HANDY_STR_Green], Handy_3DS_String_list [HANDY_STR_Red]}; 
+extern char const *gui_Languages[5];
 
-
+/*
 MENUITEM gui_MainMenuItems[] = {
-	{(char *)"Load rom", NULL, NULL, NULL, &gui_FileBrowserRun},
+	{(char *)"Load rom", NULL, 0, NULL, &gui_FileBrowserRun},
 	{(char *)"Load state", &gui_LoadSlot, 9, NULL, &gui_LoadState},
 	{(char *)"Save state", &gui_LoadSlot, 9, NULL, &gui_SaveState},
-	{(char *)"Reset rom", NULL, NULL, NULL, &gui_Reset},
-	{(char *)"Config", NULL, NULL, NULL, &gui_ConfigMenuRun},
-	{(char *)"Exit", NULL, NULL, NULL, &handy_3ds_quit} // extern in handy_3ds_main.cpp
+	{(char *)"Reset rom", NULL, 0, NULL, &gui_Reset},
+	{(char *)"Config", NULL, 0, NULL, &gui_ConfigMenuRun},
+	{(char *)"Exit", NULL, 0, NULL, &handy_3ds_quit} // extern in handy_3ds_main.cpp
 };
 
 MENU gui_MainMenu = { 6, 0, (MENUITEM *)&gui_MainMenuItems };
 
 MENUITEM gui_ConfigMenuItems[] = {
-	{(char *)"Screen config", NULL, NULL, NULL, &gui_ConfigScreenRun},
+	{(char *)"Screen config", NULL, 0, NULL, &gui_ConfigScreenRun},
 	{(char *)"Sound : ", &Handy_cfg_Sound, 1, (char **)&gui_YesNo, NULL},
 	{(char *)"Limit fps : ", &Handy_cfg_Throttle, 1, (char **)&gui_YesNo, NULL},
 	{(char *)"Swap A/B : ", &Handy_cfg_SwapAB, 1, (char **)&gui_YesNo, NULL},
-	{(char *)"Save config", NULL, NULL, NULL, &gui_SaveConfig}
+	{(char *)"Save config", NULL, 0, NULL, &gui_SaveConfig}
 };
+
 
 MENU gui_ConfigMenu = { 5, 0, (MENUITEM *)&gui_ConfigMenuItems };
 
@@ -180,6 +190,39 @@ MENUITEM gui_ConfigScreenItems[] = {
 	{(char *)"Show fps : ", &Handy_cfg_Show_FPS, 1, (char **)&gui_YesNo, NULL},
 	{(char *)"Show Background : ", &Handy_cfg_ShowBackground, 1, (char **)&gui_YesNo, NULL},
 	{(char *)"Background color: ", &Handy_cfg_BGColor, 3, (char **)&gui_ColorNames, NULL}	
+};
+*/
+
+
+MENUITEM gui_MainMenuItems[] = {
+	{Handy_3DS_String_list [HANDY_STR_Load_Rom], NULL, 0, NULL, &gui_FileBrowserRun},
+	{Handy_3DS_String_list [HANDY_STR_Load_State], &gui_LoadSlot, 9, NULL, &gui_LoadState},
+	{Handy_3DS_String_list [HANDY_STR_Save_State], &gui_LoadSlot, 9, NULL, &gui_SaveState},
+	{Handy_3DS_String_list [HANDY_STR_Reset_rom], NULL, 0, NULL, &gui_Reset},
+	{Handy_3DS_String_list [HANDY_STR_Config], NULL, 0, NULL, &gui_ConfigMenuRun},
+	{Handy_3DS_String_list [HANDY_STR_Exit], NULL, 0, NULL, &handy_3ds_quit} // extern in handy_3ds_main.cpp
+};
+
+MENU gui_MainMenu = { 6, 0, (MENUITEM *)&gui_MainMenuItems };
+
+MENUITEM gui_ConfigMenuItems[] = {
+	{Handy_3DS_String_list [HANDY_STR_Screen_Config], NULL, 0, NULL, &gui_ConfigScreenRun},
+	{Handy_3DS_String_list [HANDY_STR_Language], &Handy_cfg_Language, 4, (char **)&gui_Languages, NULL},
+	{Handy_3DS_String_list [HANDY_STR_Sound], &Handy_cfg_Sound, 1, (char **)&gui_YesNo, NULL},
+	{Handy_3DS_String_list [HANDY_STR_Limit_FPS], &Handy_cfg_Throttle, 1, (char **)&gui_YesNo, NULL},
+	{Handy_3DS_String_list [HANDY_STR_Swap_AB], &Handy_cfg_SwapAB, 1, (char **)&gui_YesNo, NULL},
+	{Handy_3DS_String_list [HANDY_STR_Save_Config], NULL, 0, NULL, &gui_SaveConfig}
+};
+
+
+MENU gui_ConfigMenu = { 6, 0, (MENUITEM *)&gui_ConfigMenuItems };
+
+MENUITEM gui_ConfigScreenItems[] = {
+	{Handy_3DS_String_list [HANDY_STR_Screen_Size], &Handy_cfg_scalemode, 3, (char **)&gui_ScaleNames, NULL},
+	{Handy_3DS_String_list [HANDY_STR_Bottom_Screen], &Handy_cfg_BottomScr, 1, (char **)&gui_YesNo, NULL},
+	{Handy_3DS_String_list [HANDY_STR_Show_FPS], &Handy_cfg_Show_FPS, 1, (char **)&gui_YesNo, NULL},
+	{Handy_3DS_String_list [HANDY_STR_Show_Background], &Handy_cfg_ShowBackground, 1, (char **)&gui_YesNo, NULL},
+	{Handy_3DS_String_list [HANDY_STR_Background_Color], &Handy_cfg_BGColor, 3, (char **)&gui_ColorNames, NULL}	
 };
 
 MENU gui_ConfigScreen = {5, 0, (MENUITEM *)&gui_ConfigScreenItems };
@@ -200,7 +243,8 @@ void gui_SaveConfig()
 void gui_ClearScreen()
 {
     sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
-    sftd_draw_text(font, 40, 115, 0xffffffff, 16, "Wait please ...");
+	guitextwidth = sftd_get_text_width(font2, 16, Handy_3DS_String_list[HANDY_STR_Wait]);
+	sftd_draw_text(font2, (320 - guitextwidth) / 2 , 220, RGBA8(0xff, 0xff, 0xff, 0xff), 16, Handy_3DS_String_list[HANDY_STR_Wait]);
     sf2d_end_frame();
     gfxFlushBuffers();
     sf2d_swapbuffers();
@@ -222,7 +266,7 @@ void ShowMenuItem(int x, int y, MENUITEM *m, int fg_color, int showparam)
 			// if parameter is a name in array
 			sprintf(i_str, "%s", *(m->itemParName + *m->itemPar));
 		}
-		sftd_draw_text(font, x+70, y, fg_color, 10, i_str);
+		sftd_draw_text(font, x+125, y, fg_color, 10, i_str);
 	}
 }
 
@@ -275,9 +319,9 @@ s32 load_file(char **wildcards, char *result, bool startup)
 
 	char current_dir_name[MAX__PATH];
     char prev_dir_name[MAX__PATH];
-	DIR *current_dir;
-	struct dirent *current_file;
-	struct stat file_info;
+	// DIR *current_dir; // unused
+	// struct dirent *current_file; // unused
+	// struct stat file_info; // unused
 	char current_dir_short[81];
 	u32 current_dir_length;
 	u32 total_filenames_allocated;
@@ -289,8 +333,9 @@ s32 load_file(char **wildcards, char *result, bool startup)
 	char *file_name;
 	u32 file_name_length;
 	u32 ext_pos = -1;
-	u32 chosen_file, chosen_dir;
-	u32 dialog_result = 1;
+	// u32 chosen_file; //unused
+	// u32 chosen_dir; // unused
+	// u32 dialog_result = 1; // unused
 	s32 return_value = 1;
 	u32 current_file_selection;
 	u32 current_file_scroll_value;
@@ -323,13 +368,13 @@ s32 load_file(char **wildcards, char *result, bool startup)
 
 		num_files = 0;
 		num_dirs = 0;
-		chosen_file = 0;
-		chosen_dir = 0;
+		//chosen_file = 0; //unused
+		//chosen_dir = 0;  //unused
         
         file_name= (char*) malloc(0x105);
 
-        FS_path dirPath = (FS_path){PATH_CHAR, strlen(current_dir_name)+1, (u8*)current_dir_name};
-        FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, dirPath);
+        FS_Path dirPath = (FS_Path){PATH_ASCII, strlen(current_dir_name)+1, (u8*)current_dir_name};
+        FSUSER_OpenDirectory(&dirHandle, sdmcArchive, dirPath);
 
 		// DEBUG
 		printf("Current directory: %s\n", current_dir_name);
@@ -343,7 +388,7 @@ s32 load_file(char **wildcards, char *result, bool startup)
 
                 if(((file_name[0] != '.') || (file_name[1] == '.'))) {
 					//if(S_ISDIR(file_info.st_mode)) {    //!!!!!!!!
-                    if(entry.isDirectory) {
+                    if(entry.attributes & FS_ATTRIBUTE_DIRECTORY) {
                         if((strcmp(file_name, "filer") != 0) && (strcmp(file_name, "Nintendo 3DS") != 0) && (strcmp(file_name, "private") != 0)) {
                             dir_list[num_dirs] = (char *)malloc(file_name_length + 1);
                             strcpy(dir_list[num_dirs], file_name);
@@ -411,18 +456,20 @@ s32 load_file(char **wildcards, char *result, bool startup)
 			sf2d_start_frame(GFX_BOTTOM, GFX_LEFT); //!!
 			sftd_draw_text(font, 0, 4, COLOR_ACTIVE_ITEM, 10, current_dir_short);
             if (startup) {
-				sftd_draw_text(font, 50, 115, COLOR_HELP_TEXT, 10, "Press B to exit");
+				guitextwidth = sftd_get_text_width(font, 10, Handy_3DS_String_list[HANDY_STR_Exit_menu]);
+				sftd_draw_text(font, (320 - guitextwidth) / 2, 225, COLOR_HELP_TEXT, 10, Handy_3DS_String_list[HANDY_STR_Exit_menu]);
             } else {
-				sftd_draw_text(font, 25, 115, COLOR_HELP_TEXT, 10, "Press B to return to the main menu");
+				guitextwidth = sftd_get_text_width(font, 10, Handy_3DS_String_list[HANDY_STR_Back_to_Main]);
+				sftd_draw_text(font, (320 - guitextwidth) / 2, 225, COLOR_HELP_TEXT, 10, Handy_3DS_String_list[HANDY_STR_Back_to_Main]);
             }
 			for(i = 0, current_file_number = i + current_file_scroll_value; i < FILE_LIST_ROWS; i++, current_file_number++) {
 				if(current_file_number < num_files) {
                     strncpy(print_buffer,file_list[current_file_number], 30);   //38);
                     print_buffer[30] = 0;   //38] = 0;
 					if((current_file_number == current_file_selection) && (current_column == 0)) {
-						sftd_draw_text(font, FILE_LIST_POSITION, ((i + 2) * 5), COLOR_ACTIVE_ITEM, 10, print_buffer);
+						sftd_draw_text(font, FILE_LIST_POSITION, ((i + 2) * 10), COLOR_ACTIVE_ITEM, 10, print_buffer);
 					} else {
-						sftd_draw_text(font, FILE_LIST_POSITION, ((i + 2) * 5), COLOR_INACTIVE_ITEM, 10, print_buffer);
+						sftd_draw_text(font, FILE_LIST_POSITION, ((i + 2) * 10), COLOR_INACTIVE_ITEM, 10, print_buffer);
 					}
 				}
 			}
@@ -431,9 +478,9 @@ s32 load_file(char **wildcards, char *result, bool startup)
                     strncpy(print_buffer,dir_list[current_dir_number], 8);  //13);
                     print_buffer[9] = 0;    //14] = 0;
 					if((current_dir_number == current_dir_selection) && (current_column == 1)) {
-						sftd_draw_text(font, DIR_LIST_POSITION, ((i + 2) * 5), COLOR_ACTIVE_ITEM, 10, print_buffer);
+						sftd_draw_text(font, DIR_LIST_POSITION, ((i + 2) * 10), COLOR_ACTIVE_ITEM, 10, print_buffer);
 					} else {
-						sftd_draw_text(font, DIR_LIST_POSITION, ((i + 2) * 5), COLOR_INACTIVE_ITEM, 10, print_buffer);
+						sftd_draw_text(font, DIR_LIST_POSITION, ((i + 2) * 10), COLOR_INACTIVE_ITEM, 10, print_buffer);
 					}
 				}
 			}
@@ -621,7 +668,7 @@ s32 load_file(char **wildcards, char *result, bool startup)
 /*
 	Rom file browser which is called from menu
 */
-char *file_ext[] = { ".lnx", ".lyx", ".zip", NULL };
+char *file_ext[] = { (char *) ".lnx", (char *) ".lyx", (char *) ".zip", NULL };
 
 void gui_FileBrowserRun()
 {
@@ -684,25 +731,30 @@ void ShowPreview(MENU *menu)
 }
 
 /*
-	Shows menu items and pointing arrow
+	Shows menu items 
 */
 void ShowMenu(MENU *menu)
 {
 	int i;
 	MENUITEM *mi = menu->m;
+	
+	set_language();
+	
 	int boxColor;
 	
 	    switch (Handy_cfg_BGColor) {
 		case 0:
 		case 1:
-		    boxColor = 0x4444aaff;
+		    boxColor = RGBA8(0x44,   0x44, 0xaa,   0xff);
 			break;
 		case 2:
-		    boxColor = 0x44aa44ff;
+		    boxColor = RGBA8(0x44,   0xaa, 0x44,   0xff);
 			break;
 		case 3:
-		    boxColor = 0xaa4444ff;
+		    boxColor = RGBA8(0xaa,   0x44, 0x44,   0xff);
 			break;
+		default:
+		    boxColor = RGBA8(0x44,   0x44, 0xaa,   0xff);
 	}
 
 
@@ -711,7 +763,8 @@ void ShowMenu(MENU *menu)
 		int fg_color;
 		sf2d_draw_rectangle(10, 35 + i*26, 125, 19, (menu->itemCur == i)?boxColor:COLOR_INACTIVE_ITEM_BG); 
 		if(menu->itemCur == i) fg_color = COLOR_ACTIVE_ITEM; else fg_color = COLOR_INACTIVE_ITEM;
-		ShowMenuItem(7, 24 + i * 13, mi, fg_color,(menu == &gui_MainMenu)?0:1);
+//		ShowMenuItem(7, 24 + i * 13, mi, fg_color,(menu == &gui_MainMenu)?0:1);
+		ShowMenuItem(12, 38 + i*26, mi, fg_color,(menu == &gui_MainMenu)?0:1);
 	}
 
 	// show preview screen
@@ -719,13 +772,16 @@ void ShowMenu(MENU *menu)
 
 	// print info string
 
-    sftd_draw_text(font, 6, 11, 0x666666ff, 16, "Handy 3ds 1.0 alpha");
-    sftd_draw_text(font, 5, 10, 0xffffffff, 16, "Handy 3ds 1.0 alpha");
+    sftd_draw_text(font2, 7, 7, RGBA8(0x66,   0x66, 0x66,   0xff), 16, "Handy 3ds V1.1b");
+    sftd_draw_text(font2, 5, 5, RGBA8(0xff,   0xff, 0xff,   0xff), 16, "Handy 3ds V1.1b");
 
-	if (menu == &gui_MainMenu)
-		sftd_draw_text(font, 40, 115, COLOR_HELP_TEXT, 10, "Press B to return to game");
-	else
-		sftd_draw_text(font, 25, 115, COLOR_HELP_TEXT, 10, "Press B to return to previous menu");
+	if (menu == &gui_MainMenu) {
+		guitextwidth = sftd_get_text_width(font, 10, Handy_3DS_String_list[HANDY_STR_Back_to_Game]);
+		sftd_draw_text(font, (320 - guitextwidth) / 2, 225, COLOR_HELP_TEXT, 10, Handy_3DS_String_list[HANDY_STR_Back_to_Game]);
+	} else {
+		guitextwidth = sftd_get_text_width(font, 10, Handy_3DS_String_list[HANDY_STR_Back_to_Previous]);
+		sftd_draw_text(font, (320 - guitextwidth) / 2, 225, COLOR_HELP_TEXT, 10, Handy_3DS_String_list[HANDY_STR_Back_to_Previous]);
+	}
  }
 
 
@@ -820,9 +876,10 @@ void gui_DrawTopScreen() {
 	}
 
 	if (prevscreen){
-		sf2d_draw_rectangle(128, 98, 144, 44, 0xffffffff); 
-		sf2d_draw_rectangle(130, 100, 140, 40, 0x000044ff); 
-		sftd_draw_text(font, 73, 63, 0xffffffff, 16, "GAME PAUSED");
+		guitextwidth = sftd_get_text_width(font2, 16, Handy_3DS_String_list[HANDY_STR_Pause]);
+		sf2d_draw_rectangle((400 - 24 - guitextwidth) / 2, 98, guitextwidth + 24, 44, RGBA8(0xff, 0xff, 0xff, 0xff)); 
+		sf2d_draw_rectangle((400 - 20 - guitextwidth) / 2, 100, guitextwidth + 20, 40, RGBA8(0,   0, 0x44,   0xff)); 
+		sftd_draw_text(font2, (400 - guitextwidth) / 2, 110, RGBA8(0xff, 0xff, 0xff, 0xff), 16, Handy_3DS_String_list[HANDY_STR_Pause]);
 	}
        
 	sf2d_end_frame();
@@ -833,7 +890,7 @@ void gui_DrawTopScreen() {
 */
 void gui_MainMenuRun(MENU *menu)
 {
-    APP_STATUS status;
+    APT_AppStatus status;
 	MENUITEM *mi;
 
 	done = FALSE;
@@ -889,13 +946,13 @@ void gui_MainMenuRun(MENU *menu)
         if(!done) {
             ShowMenu(menu); // show menu items
  			if (menu == &gui_MainMenu && (menu->itemCur == 1 || menu->itemCur == 2)) {
-				sf2d_draw_rectangle(146, 53, 164, 106, 0xffffffff); 
+				sf2d_draw_rectangle(146, 53, 164, 106, RGBA8(0xff, 0xff, 0xff, 0xff)); 
 				sf2d_draw_texture_part(previewtex, 148 , 55, 0, 0, 160, 102);
 				int countslot;
 				static char slot_str[2] = { 0,0 };
 				for(countslot=0; countslot<10;countslot++) {
 					slot_str[0] = '0' + countslot;
-					sftd_draw_text(font, 81 + 7 * countslot, 87 , (countslot==gui_LoadSlot)?COLOR_ACTIVE_ITEM:COLOR_INACTIVE_ITEM, 10, slot_str);
+					sftd_draw_text(font, 190 + 7 * countslot, 160 , (countslot==gui_LoadSlot)?COLOR_ACTIVE_ITEM:COLOR_INACTIVE_ITEM, 10, slot_str);
 				}
 			} else 
 				sf2d_draw_texture_part(previewtex, 148 , 55, 0, 0, 160, 102);

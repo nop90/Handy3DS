@@ -65,7 +65,7 @@
 #define HANDY_AUDIO_SAMPLE_PERIOD				(HANDY_SYSTEM_FREQ/HANDY_AUDIO_SAMPLE_FREQ)
 #define HANDY_AUDIO_WAVESHAPER_TABLE_LENGTH		0x200000
 
-#define HANDY_AUDIO_BUFFER_SIZE					4096	// we use this to not loose savestate of 3DS alpha version
+#define HANDY_AUDIO_BUFFER_SIZE					4096	// we use this to not maintain compatibility with savestate of 3DS alpha version
 //#define HANDY_AUDIO_BUFFER_SIZE					(HANDY_AUDIO_SAMPLE_FREQ/4)
 //#endif
 

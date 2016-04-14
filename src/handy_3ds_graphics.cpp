@@ -40,29 +40,36 @@
 #include <ctime>
 #include <cctype>
 
-#include "handy_3ds_main.h"
-#include "handy_3ds_graphics.h"
-#include "handy_3ds_gui.h"
 #include <3ds.h>
 #include <sf2d.h>
 #include <sfil.h>
 #include <sftd.h>
-#include "Hack_ttf.h"
+#include "Roboto_Regular_ttf.h"
+//#include "handy_3ds_lang.h"
+#include "handy_3ds_config.h"
+#include "handy_3ds_main.h"
+#include "handy_3ds_graphics.h"
+#include "handy_3ds_gui.h"
 
 sftd_font *font;
+sftd_font *font2; // workaronund to print fonts in tqo sizes without the blurrin problem. Waiting a cleaner fix from Xerpi ;-)
 
 sf2d_texture *screentex1, *screentex2, *currentscreen, *prevscreen, *previewtex, *background, *emptyslot, *insertgame; 
 
 float stretchx, stretchy, stretchr, bgstretchx, bgstretchy;
 int Handy_rotation = 0;
+int textwidth;
 
 extern int Handy_cfg_scalemode;
 extern int Handy_cfg_ShowBackground;
 extern int Handy_cfg_BottomScr;
 extern int Handy_cfg_BGColor;
+extern int Handy_cfg_Show_FPS;
 extern char config_skin_path[];
 extern int BT_LEFT, BT_RIGHT, BT_UP, BT_DOWN;
 extern float fps_counter;
+extern char Handy_3DS_String_list [27][HANDY_3DS_LANGUAGE_STRING_MAX_SIZE]; 
+
 
 void handy_3ds_video_changeScaling() {
     Handy_cfg_scalemode++;
@@ -127,21 +134,26 @@ void handy_3ds_video_init(void)
 //    sf2d_set_vblank_wait(false);
     sf2d_set_vblank_wait(true);
     sftd_init();
-    font = sftd_load_font_mem(Hack_ttf, Hack_ttf_size);
-
+    font = sftd_load_font_mem(Roboto_Regular_ttf, Roboto_Regular_ttf_size);
+    font2 = sftd_load_font_mem(Roboto_Regular_ttf, Roboto_Regular_ttf_size);
+	
     screentex1 = sf2d_create_texture(160, 102, TEXFMT_RGBA8, SF2D_PLACE_RAM);
     screentex2 = sf2d_create_texture(160, 102, TEXFMT_RGBA8, SF2D_PLACE_RAM);
     previewtex = sf2d_create_texture(160, 102, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 
-	if(background) 
-		if((background->pixel_format != TEXFMT_RGBA8) && ( background->width ==0) && ( background->height ==0)) 
-			sf2d_free_texture(background);
+//	if(background) 
+//		if((background->pixel_format != TEXFMT_RGBA8) && ( background->width ==0) && ( background->height ==0)) 
+//			sf2d_free_texture(background);
 
 	char filename[512];
 
 	sprintf(filename, "%s/%s", config_skin_path, "Handy3ds_Background.png");
 
 	background = sfil_load_PNG_file(filename, SF2D_PLACE_RAM);
+
+	if(background) 
+		if((background->pixel_format != TEXFMT_RGBA8) && ( background->width ==0) && ( background->height ==0)) 
+			sf2d_free_texture(background);
 
 	sprintf(filename, "%s/%s", config_skin_path, "emptyslot.png");
 
@@ -184,6 +196,7 @@ void handy_3ds_video_quit(void)
 	if (insertgame) sf2d_free_texture(insertgame);
 
     sftd_free_font(font);
+    sftd_free_font(font2);
     sftd_fini();
     sf2d_fini();
 
@@ -191,7 +204,7 @@ void handy_3ds_video_quit(void)
 
 void handy_3ds_video_flip(void) {
 
-    GSPGPU_FlushDataCache(NULL, (u8*)currentscreen->data, 102*256*4);
+    GSPGPU_FlushDataCache((u8*)currentscreen->data, 102*256*4);
 
     currentscreen->tiled = 0;
     sf2d_texture_tile32(currentscreen);
@@ -253,13 +266,13 @@ void handy_3ds_video_flip(void) {
 		default:
 			switch (Handy_cfg_scalemode) {
 				case 0:
-					sf2d_draw_texture_part_rotate_scale(currentscreen, 400, 120, 4.71, 0, 0, 160, 102, 1, 1); //1x
+					sf2d_draw_texture_part_rotate_scale(currentscreen, 200, 120, 4.71, 0, 0, 160, 102, 1, 1); //1x
 					break;
 				case 1:
 				case 2:
 				case 3:
 				default:
-					sf2d_draw_texture_part_rotate_scale(currentscreen, 400, 120, 4.71, 0, 0, 160, 102, stretchr, stretchr);    //fit
+					sf2d_draw_texture_part_rotate_scale(currentscreen, 200, 120, 4.71, 0, 0, 160, 102, stretchr, stretchr);    //fit
 					break;
 			}
 			break;
@@ -272,10 +285,15 @@ void handy_3ds_video_flip(void) {
 	if (Handy_cfg_BottomScr) {
 		static char buffer[64];
 
-        sprintf(buffer, "FPS: %.2f", fps_counter);
-	    sftd_draw_text(font, 4, 8, 0xffffffff, 10, buffer);
-		sftd_draw_text(font, 24, 115, 0xffffffff, 16, "Touch screen for menu");
-    } else sf2d_draw_rectangle(0, 0, 320, 240, 0x000000ff); 
+        if(Handy_cfg_Show_FPS) {
+			sprintf(buffer, "FPS: %.2f", fps_counter);
+			sftd_draw_text(font, 8, 8, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 10, buffer);
+		}
+//		textwidth = sftd_get_text_width(font2, 16, "Touch the screen to show the menu");
+//		sftd_draw_text(font2, (320 - textwidth)/2, 220, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 16, "Touch the screen to show the menu");
+		textwidth = sftd_get_text_width(font2, 16, Handy_3DS_String_list[HANDY_STR_Show_Menu]);
+		sftd_draw_text(font2, (320 - textwidth)/2, 220, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 16, Handy_3DS_String_list[HANDY_STR_Show_Menu]);
+    } else sf2d_draw_rectangle(0, 0, 320, 240, RGBA8(0x00, 0x00, 0x00, 0xFF)); 
 
 	sf2d_end_frame();
     gfxFlushBuffers();
@@ -348,12 +366,13 @@ int handy_3ds_video_setup(int rendertype, int fsaa, int fullscreen, int bpp, int
             break;
     }
 
-    if( bpp != 0 )
-    {
+    //if( bpp != 0 )
+    //{
             bpp_flag = bpp;
-    }
-    else
-    {/*
+    //}
+    //else
+    //{
+	/*
             switch(info->vfmt->BitsPerPixel)
             {
                 case 8:
@@ -372,7 +391,7 @@ int handy_3ds_video_setup(int rendertype, int fsaa, int fullscreen, int bpp, int
                     sdl_bpp_flag = 8;  // Default : 8bpp
                     break;
             }*/
-    }
+    //}
     mpBpp = bpp_flag;
 
     printf("Rendering : %dBPP\n", bpp_flag);

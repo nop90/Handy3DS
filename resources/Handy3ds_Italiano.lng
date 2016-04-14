@@ -4,7 +4,7 @@ Italiano
 [wait]
 Attendere ...
 
-[wait]
+[pause]
 In pausa
 
 [Back_to_Game]
@@ -15,7 +15,7 @@ Premi B per il menu principale
 
 [Load_Rom]
 Carica Rom
-.
+
 [Load_State]
 Carica Stato
 
@@ -67,6 +67,6 @@ Iverti A/B
 [Show_Background]
 Mostra sfondo
 
-[Save config]
+[Save_config]
 Salva configurazione
 
